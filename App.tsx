@@ -8,6 +8,7 @@ import {
   parseStepData,
 } from './src/lib/StepCounter';
 
+import {PermissionsAndroid} from 'react-native';
 export default function App() {
   const [stepCount, setStepCount] = useState(0);
   const [stepCounterStatus, setStepCounterStatus] = useState({
@@ -24,7 +25,13 @@ export default function App() {
       stopBackgroundService();
     }
   }
+
   const checkStepCounterSupport = () => {
+    console.log('Checking step counter support');
+    PermissionsAndroid.request(
+      PermissionsAndroid.PERMISSIONS.ACTIVITY_RECOGNITION,
+    );
+
     isStepCountingSupported().then(response => {
       const {granted, supported} = response;
       setStepCounterStatus({granted, supported});
@@ -35,6 +42,7 @@ export default function App() {
     let today = new Date();
     today.setHours(0, 0, 0, 0);
     startStepCounterUpdate(today, response => {
+      console.log('Step count data', response);
       const data = parseStepData(response);
       setStepCount(data.steps);
     });

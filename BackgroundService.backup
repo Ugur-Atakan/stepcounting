@@ -24,10 +24,6 @@ class BackgroundService : Service() {
     private val notificationIntent = Intent(this, MainActivity::class.java)
 
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
-        if (intent.action == "ACTION_STOP_SERVICE") {
-            stopSelf()  // Servisi durdur
-            return START_NOT_STICKY
-        }
         createNotificationChannel()
         startForeground(NOTIFICATION_ID, getNotification())
         return START_STICKY
@@ -45,12 +41,16 @@ class BackgroundService : Service() {
             if (getSystemService(AlarmManager::class.java).canScheduleExactAlarms()) {
                 scheduleRestart()
             } else {
+                // İzin yoksa, kullanıcıya izin isteme niyetini başlatın
                 val intent = Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM)
                 intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
                 startActivity(intent)
+
+                // Kullanıcıyı bilgilendir
                 Toast.makeText(this, "Please allow the app to schedule exact alarms for continuous operation.", Toast.LENGTH_LONG).show()
             }
         } else {
+            // Android 12'den önceki sürümler için direkt olarak planlayın
             scheduleRestart()
         }
     }
@@ -75,24 +75,12 @@ class BackgroundService : Service() {
                 restartServicePendingIntent
         )
     }
-
     override fun onBind(intent: Intent): IBinder? {
         return null
     }
 
     private fun getNotification(): Notification {
-        val stopIntent = Intent(this, BackgroundService::class.java)
-        stopIntent.action = "ACTION_STOP_SERVICE"
-        val stopPendingIntent = PendingIntent.getService(
-            this, 0, stopIntent,
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-            } else {
-                PendingIntent.FLAG_UPDATE_CURRENT
-            }
-        )
-
-        val mainPendingIntent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        val pendingIntent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
         } else {
             PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT)
@@ -102,10 +90,10 @@ class BackgroundService : Service() {
                 .setContentTitle("Step Counter is running")
                 .setContentText("Tracking your steps")
                 .setSmallIcon(androidx.appcompat.R.drawable.abc_ic_menu_overflow_material)
-                .setContentIntent(mainPendingIntent)
-                .addAction(android.R.drawable.ic_media_pause, "Stop", stopPendingIntent)  // Durdur butonu ekle
+                .setContentIntent(pendingIntent)
                 .build()
     }
+
 
     private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -120,4 +108,5 @@ class BackgroundService : Service() {
             notificationManager.createNotificationChannel(channel)
         }
     }
+
 }
