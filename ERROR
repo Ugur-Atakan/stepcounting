@@ -1,0 +1,38 @@
+                                                                                                    Process: com.stepcounting, PID: 32400
+                                                                                                    
+java.lang.RuntimeException: Unable to start service com.stepcounting.services.BackgroundService@79d7dbd with Intent { cmp=com.stepcounting/.services.BackgroundService }: android.app.MissingForegroundServiceTypeException: Starting FGS without a type  callerApp=ProcessRecord{5055c9e 32400:com.stepcounting/u0a201} targetSDK=34
+																																																		at android.app.ActivityThread.handleServiceArgs(ActivityThread.java:4839)
+                                                                                                    	at android.app.ActivityThread.-$$Nest$mhandleServiceArgs(Unknown Source:0)
+                                                                                                    	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:2289)
+                                                                                                    	at android.os.Handler.dispatchMessage(Handler.java:106)
+                                                                                          						at android.os.Looper.loopOnce(Looper.java:205)
+                                                                                                    	at android.os.Looper.loop(Looper.java:294)
+                                                                                                    	at android.app.ActivityThread.main(ActivityThread.java:8177)
+                                                                                                    	at java.lang.reflect.Method.invoke(Native Method)
+                                                                                                    	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:552)
+                                                                                                    	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:971)
+
+
+Caused by: android.app.MissingForegroundServiceTypeException: Starting FGS without a type  callerApp=ProcessRecord{5055c9e 32400:com.stepcounting/u0a201} targetSDK=34
+                                                                                                    	at android.app.MissingForegroundServiceTypeException$1.createFromParcel(MissingForegroundServiceTypeException.java:53)
+                                                                                                    	at android.app.MissingForegroundServiceTypeException$1.createFromParcel(MissingForegroundServiceTypeException.java:49)
+                                                                                                    	at android.os.Parcel.readParcelableInternal(Parcel.java:4870)
+                                                                                                    	at android.os.Parcel.readParcelable(Parcel.java:4852)
+                                                                                                    	at android.os.Parcel.createExceptionOrNull(Parcel.java:3052)
+                                                                                                    	at android.os.Parcel.createException(Parcel.java:3041)
+                                                                                                    	at android.os.Parcel.readException(Parcel.java:3024)
+                                                                                                    	at android.os.Parcel.readException(Parcel.java:2966)
+                                                                                                    	at android.app.IActivityManager$Stub$Proxy.setServiceForeground(IActivityManager.java:6761)
+                                                                                                    	at android.app.Service.startForeground(Service.java:775)
+                                                                                                    	at com.stepcounting.services.BackgroundService.onStartCommand(BackgroundService.kt:38)
+                                                                                                    	at android.app.ActivityThread.handleServiceArgs(ActivityThread.java:4821)
+                                                                                                    	at android.app.ActivityThread.-$$Nest$mhandleServiceArgs(Unknown Source:0) 
+                                                                                                    	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:2289) 
+                                                                                                    	at android.os.Handler.dispatchMessage(Handler.java:106) 
+                                                                                                    	at android.os.Looper.loopOnce(Looper.java:205) 
+                                                                                                    	at android.os.Looper.loop(Looper.java:294) 
+                                                                                                    	at android.app.ActivityThread.main(ActivityThread.java:8177) 
+                                                                                                    	at java.lang.reflect.Method.invoke(Native Method) 
+                                                                                                    	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:552) 
+                                                                                                    	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:971) 
+---------------------------- PROCESS ENDED (32400) for package com.stepcounting ----------------------------

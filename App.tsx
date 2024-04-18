@@ -7,7 +7,7 @@ import {
   startStepCounterUpdate,
   parseStepData,
 } from './src/lib/StepCounter';
-
+import notifee from '@notifee/react-native';
 import {PermissionsAndroid} from 'react-native';
 export default function App() {
   const [stepCount, setStepCount] = useState(0);
@@ -26,12 +26,12 @@ export default function App() {
     }
   }
 
-  const checkStepCounterSupport = () => {
+  const checkStepCounterSupport = async () => {
     console.log('Checking step counter support');
-    PermissionsAndroid.request(
+    await PermissionsAndroid.request(
       PermissionsAndroid.PERMISSIONS.ACTIVITY_RECOGNITION,
     );
-
+    await notifee.requestPermission();
     isStepCountingSupported().then(response => {
       const {granted, supported} = response;
       setStepCounterStatus({granted, supported});
@@ -47,6 +47,7 @@ export default function App() {
       setStepCount(data.steps);
     });
   };
+  
   useEffect(() => {
     checkStepCounterSupport();
     startStepCounter();

@@ -1,15 +1,16 @@
 package com.stepcounting.services
 
 import android.app.AlarmManager
-import android.app.Service
-import android.content.Intent
-import android.os.IBinder
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
+import android.app.Service
 import android.content.Context
+import android.content.Intent
+import android.content.pm.ServiceInfo
 import android.os.Build
+import android.os.IBinder
 import android.os.SystemClock
 import android.provider.Settings
 import android.widget.Toast
@@ -21,21 +22,37 @@ class BackgroundService : Service() {
         const val CHANNEL_ID = "sc_background_service_channel"
         const val NOTIFICATION_ID = 1
     }
-    private val notificationIntent = Intent(this, MainActivity::class.java)
+
+    private lateinit var notificationIntent: Intent
+
+    override fun onCreate() {
+        super.onCreate()
+        notificationIntent = Intent(this, MainActivity::class.java)
+        createNotificationChannel()
+    }
 
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
         if (intent.action == "ACTION_STOP_SERVICE") {
-            stopSelf()  // Servisi durdur
+            stopSelf()
             return START_NOT_STICKY
         }
-        createNotificationChannel()
-        startForeground(NOTIFICATION_ID, getNotification())
+        if (Build.VERSION.SDK_INT >= 34) {
+            startForeground(
+                    NOTIFICATION_ID,
+                    getNotification(),
+                    ServiceInfo.FOREGROUND_SERVICE_TYPE_HEALTH);
+        }else {
+            startForeground(
+                    NOTIFICATION_ID,
+                    getNotification());
+        }
         return START_STICKY
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        stopForeground(Service.STOP_FOREGROUND_REMOVE)
+       // stopForeground(true)
+        stopForeground(STOP_FOREGROUND_REMOVE)
     }
 
     override fun onTaskRemoved(rootIntent: Intent?) {
@@ -84,26 +101,15 @@ class BackgroundService : Service() {
         val stopIntent = Intent(this, BackgroundService::class.java)
         stopIntent.action = "ACTION_STOP_SERVICE"
         val stopPendingIntent = PendingIntent.getService(
-            this, 0, stopIntent,
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-            } else {
-                PendingIntent.FLAG_UPDATE_CURRENT
-            }
+                this, 0, stopIntent,PendingIntent.FLAG_IMMUTABLE
         )
-
-        val mainPendingIntent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
-        } else {
-            PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT)
-        }
 
         return NotificationCompat.Builder(this, CHANNEL_ID)
                 .setContentTitle("Step Counter is running")
                 .setContentText("Tracking your steps")
                 .setSmallIcon(androidx.appcompat.R.drawable.abc_ic_menu_overflow_material)
-                .setContentIntent(mainPendingIntent)
-                .addAction(android.R.drawable.ic_media_pause, "Stop", stopPendingIntent)  // Durdur butonu ekle
+                .setContentIntent(PendingIntent.getActivity(this, 0, notificationIntent,PendingIntent.FLAG_IMMUTABLE))
+                .addAction(android.R.drawable.ic_media_pause, "Stop", stopPendingIntent)
                 .build()
     }
 
